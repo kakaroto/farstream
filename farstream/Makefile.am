@@ -93,6 +93,7 @@ Farstream_@FS_API_VERSION@_gir_INCLUDES = GObject-2.0 Gst-@GST_API_VERSION@
 Farstream_@FS_API_VERSION@_gir_CFLAGS = $(FS_INTERNAL_CFLAGS)
 Farstream_@FS_API_VERSION@_gir_SCANNERFLAGS = --identifier-prefix=fs_ \
 	--identifier-prefix=Fs --add-init-section="gst_init(NULL,NULL);"
+Farstream_@FS_API_VERSION@_gir_LDFLAGS = $(GST_LIBS)
 
 girdir = $(datadir)/gir-1.0
 dist_gir_DATA = Farstream-@FS_APIVERSION@.gir
