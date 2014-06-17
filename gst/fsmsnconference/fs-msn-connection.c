@@ -555,7 +555,8 @@ fs_msn_open_listening_port_unlock (FsMsnConnection *self, guint16 port,
        item = g_list_next (item))
   {
     candidate = fs_candidate_new (self->local_recipient_id, 1,
-        FS_CANDIDATE_TYPE_HOST, FS_NETWORK_PROTOCOL_TCP, item->data, port);
+        FS_CANDIDATE_TYPE_HOST, FS_NETWORK_PROTOCOL_TCP,
+        item->data, port);
     candidate->username = g_strdup (session_id);
 
     g_signal_emit (self, signals[SIGNAL_NEW_LOCAL_CANDIDATE], 0, candidate);
