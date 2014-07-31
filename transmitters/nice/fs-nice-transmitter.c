@@ -516,7 +516,7 @@ _create_sinksource (
   g_object_set (elem,
       "agent", agent,
       "stream", stream_id,
-      "component", component_id,
+      "component", 1,
       NULL);
 
 
