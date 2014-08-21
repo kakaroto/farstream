@@ -465,7 +465,15 @@ fs_rtp_stream_get_property (GObject *object,
       FS_RTP_SESSION_UNLOCK (session);
       break;
     case PROP_SEND_RTCP_MUX:
-      g_value_set_boolean (value, self->priv->send_rtcp_mux);
+      FS_RTP_SESSION_LOCK (session);
+      if (self->priv->stream_transmitter == NULL ||
+          g_object_class_find_property (
+              G_OBJECT_GET_CLASS (self->priv->stream_transmitter),
+              "send-component-mux") != NULL)
+        g_value_set_boolean (value, self->priv->send_rtcp_mux);
+      else
+        g_value_set_boolean (value, FALSE);
+      FS_RTP_SESSION_UNLOCK (session);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -561,9 +569,12 @@ fs_rtp_stream_set_property (GObject *object,
         if (session) {
           FS_RTP_SESSION_LOCK (session);
           self->priv->send_rtcp_mux = g_value_get_boolean (value);
-          if (self->priv->stream_transmitter != NULL)
+          if (self->priv->stream_transmitter != NULL &&
+              g_object_class_find_property (
+                  G_OBJECT_GET_CLASS (self->priv->stream_transmitter),
+                  "send-component-mux") != NULL)
             g_object_set (self->priv->stream_transmitter,
-                "send-rtcp-mux", self->priv->send_rtcp_mux, NULL);
+                "send-component-mux", self->priv->send_rtcp_mux, NULL);
           FS_RTP_SESSION_UNLOCK (session);
         }
       }
@@ -1205,7 +1216,9 @@ fs_rtp_stream_set_transmitter (FsStream *stream,
     self->priv->sending_changed_locked_cb (self,
         self->priv->direction & FS_DIRECTION_SEND,
         self->priv->user_data_for_cb);
-  g_object_set (st, "send-rtcp-mux", self->priv->send_rtcp_mux, NULL);
+  if (g_object_class_find_property (G_OBJECT_GET_CLASS (st),
+          "send-component-mux") != NULL)
+    g_object_set (st, "send-component-mux", self->priv->send_rtcp_mux, NULL);
   FS_RTP_SESSION_UNLOCK (session);
 
   if (!fs_stream_transmitter_gather_local_candidates (st, error))
